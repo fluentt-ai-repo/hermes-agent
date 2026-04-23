@@ -1,0 +1,64 @@
+name: upstream sync
+
+on:
+  schedule:
+    - cron: '0 22 * * *'   # daily 22:00 UTC = 07:00 KST
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: main
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Fetch upstream
+        run: |
+          git remote add upstream https://github.com/NousResearch/hermes-agent.git
+          git fetch upstream main
+
+      - name: Fast-forward main from upstream
+        id: ff
+        run: |
+          set -eu
+          git checkout main
+          if git merge --ff-only upstream/main; then
+            if git diff --quiet origin/main HEAD; then
+              echo "changed=false" >> "$GITHUB_OUTPUT"
+            else
+              git push origin main
+              echo "changed=true" >> "$GITHUB_OUTPUT"
+            fi
+          else
+            echo "::warning::main diverged from upstream — fast-forward impossible.  Human review needed."
+            echo "changed=ff-failed" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Report pending commits on fluentt/main
+        if: steps.ff.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git fetch origin fluentt/main
+          PENDING=$(git log --oneline origin/fluentt/main..origin/main | wc -l | tr -d ' ')
+          echo "::notice::$PENDING upstream commits pending merge into fluentt/main"
+          if [ "$PENDING" -gt 0 ]; then
+            OPEN=$(gh issue list --label "upstream-sync" --state open --json number --jq 'length')
+            if [ "$OPEN" = "0" ]; then
+              gh issue create \
+                --title "upstream sync pending — $PENDING commits since last rebase" \
+                --body "origin/main 이 fluentt/main 보다 $PENDING 개 commit 앞섬.  주간 rebase 수행.  diff: https://github.com/fluentt-ai-repo/hermes-agent/compare/fluentt/main...main" \
+                --label "upstream-sync"
+            fi
+          fi

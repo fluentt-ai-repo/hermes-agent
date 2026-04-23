@@ -1,0 +1,13 @@
+hermes-agent
+Copyright (c) Nous Research
+Licensed under the MIT License.  See LICENSE for the full text.
+
+This repository is a downstream fork maintained by Fluentt AI for the
+daymo-unity project (https://github.com/fluentt-ai-repo/daymo-unity).
+Substantial upstream work by Nous Research remains their authorship.
+
+Modifications made by Fluentt AI on the fluentt/main branch are listed
+in DIVERGENCE.md and carry the [fluentt] commit subject prefix.
+These modifications are released under the same MIT license as upstream.
+
+Portions Copyright (c) 2026 Fluentt AI.

@@ -1,3 +1,7 @@
+> **Downstream fork.** Maintained by [Fluentt AI](https://github.com/fluentt-ai-repo) for the [daymo-unity](https://github.com/fluentt-ai-repo/daymo-unity) project. Upstream: [NousResearch/hermes-agent](https://github.com/NousResearch/hermes-agent). See [`FLUENTT.md`](./FLUENTT.md) and [`DIVERGENCE.md`](./DIVERGENCE.md). If you are not building daymo, please use upstream.
+
+---
+
 <p align="center">
   <img src="assets/banner.png" alt="Hermes Agent" width="100%">
 </p>
